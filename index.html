@@ -181,8 +181,9 @@ async function initAudio() {
 }
 
 
-function playSound(buffer, volume = 0.4) { // 0.4 = 40% volume
-    if (!audioCtx || !buffer) return;
+function playSound(buffer, volume = 0.4) {
+    if (!audioCtx || !buffer) return; // prevents early errors
+
     const source = audioCtx.createBufferSource();
     const gainNode = audioCtx.createGain();
 
