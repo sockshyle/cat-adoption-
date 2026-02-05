@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adopt the Cat - Audio Fix</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #fff0f6, #e6f7ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+    overflow: hidden;
+}
+
+.container { 
+    max-width: 600px; 
+    padding: 20px;
+}
+
+h1 { font-size: 1.8rem; color: #333; margin-bottom: 5px; }
+
+.cat-img {
+    width: min(40vh, 320px);
+    height: min(40vh, 320px);
+    object-fit: cover;
+    border-radius: 25px;
+    margin: 10px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border: 6px solid white;
+}
+
+.guilt-text {
+    min-height: 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    min-height: 180px;
+}
+
+button {
+    padding: 15px 28px;
+    font-size: 18px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+#yesBtn {
+    background-color: #ff4d6d;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+    z-index: 100;
+    transition: transform 0.2s ease;
+}
+
+#noBtn {
+    background-color: #999;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+#restartBtn {
+    background-color: #6c63ff;
+    color: white;
+    margin-top: 20px;
+}
+
+.celebration {
+    position: fixed;
+    font-size: 2.5rem;
+    z-index: 200;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.5; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Will you adopt this dramatic cat? 🐱</h1>
+
+    <img id="catImg" class="cat-img"
+     src="https://images.unsplash.com/photo-1765180850180-f7cfb26fb7f1?w=900"
+     alt="Cat">
+
+    <div id="guiltText" class="guilt-text">
+        He just met you and already feels safe 🥺
+    </div>
+
+    <div class="buttons">
+        <button id="yesBtn">Yes, of course! 😻</button>
+        <button id="noBtn">I am allergic 🤧</button>
+    </div>
+
+    <button id="restartBtn" style="display:none;">Adopt another one 🔁</button>
+</div>
+
+<audio id="booSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-crowd-booing-437.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="cheerSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-small-crowd-cheer-and-applause-518.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const guiltText = document.getElementById("guiltText");
+const catImg = document.getElementById("catImg");
+const restartBtn = document.getElementById("restartBtn");
+
+let guiltIndex = 0;
+let yesScale = 1;
+let celebrationStarted = false;
+let excuseIndex = 0;
+
+/* 🎵 Web Audio Setup */
+let audioCtx;
+let booBuffer, cheerBuffer;
+
+async function loadSound(url) {
+    const res = await fetch(url);
+    const arrayBuffer = await res.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuffer);
+}
+
+async function initAudio() {
+    if (audioCtx) {
+        await audioCtx.resume(); // 🔥 THIS LINE FIXES SAFARI
+        return;
+    }
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    await audioCtx.resume(); // 🔥 also needed right after creation
+
+    booBuffer = await loadSound("https://assets.mixkit.co/sfx/preview/mixkit-crowd-booing-437.mp3");
+    cheerBuffer = await loadSound("https://assets.mixkit.co/sfx/preview/mixkit-small-crowd-cheer-and-applause-518.mp3");
+
+    console.log("Audio ready!");
+}
+
+
+function playSound(buffer) {
+    if (!audioCtx || !buffer) return;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
+}
+
+/* Unlock audio on first interaction */
+window.addEventListener("click", initAudio, { once: true });
+window.addEventListener("touchstart", initAudio, { once: true });
+
+const guiltMessages = [
+    "He already packed his tiny suitcase 🧳",
+    "He told his mom about you 🥺",
+    "He printed your photo 🖼️",
+    "He practiced saying your name 😭",
+    "He thinks you're his best friend already",
+    "He just looked at the door hopefully",
+    "He believes in you"
+];
+
+const excuses = [
+    "I am allergic 🤧", "I don't like cats 🙄", "I am selfish 😔",
+    "I am inhuman 😶", "Mom won’t let me 😭", "I prefer dogs 🐶"
+];
+
+const sadCats = [
+    "https://images.unsplash.com/photo-1697134065897-d262c9127bd6?w=900",
+    "https://images.unsplash.com/photo-1498579687545-d5a4fffb0a9e?w=900",
+    "https://images.unsplash.com/photo-1691195116672-124f65b4eeb1?w=900",
+    "https://images.unsplash.com/photo-1731585525945-ddbbc540e660?w=900",
+    "https://images.unsplash.com/photo-1665884700449-0300c8741d6c?w=900"
+];
+
+function moveButton() {
+    if (celebrationStarted) return;
+
+    playSound(booBuffer);
+
+    noBtn.style.position = "fixed";
+    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    noBtn.style.left = `${x}px`;
+    noBtn.style.top = `${y}px`;
+
+    noBtn.innerText = excuses[excuseIndex % excuses.length];
+    guiltText.innerText = guiltMessages[guiltIndex % guiltMessages.length];
+    catImg.src = sadCats[guiltIndex % sadCats.length];
+
+    excuseIndex++;
+    guiltIndex++;
+
+    if (yesScale < 2.2) {
+        yesScale += 0.15;
+        yesBtn.style.transform = `scale(${yesScale})`;
+    }
+}
+
+noBtn.addEventListener("mouseenter", moveButton);
+noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveButton(); });
+
+yesBtn.addEventListener("click", () => {
+    celebrationStarted = true;
+
+    playSound(cheerBuffer);
+
+    catImg.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400";
+    guiltText.innerText = "YOU CHOSE LOVE 😭💖";
+
+    noBtn.style.display = "none";
+    restartBtn.style.display = "inline-block";
+
+    for (let i = 0; i < 80; i++) spawnConfetti();
+});
+
+function spawnConfetti() {
+    const confetti = document.createElement("div");
+    confetti.className = "celebration";
+    confetti.innerText = ["🐱","💖","✨","🎉"][Math.floor(Math.random()*4)];
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.top = "-50px";
+    confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+}
+
+restartBtn.addEventListener("click", () => location.reload());
+</script>
+
+</body>
+</html>
