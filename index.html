@@ -156,7 +156,7 @@ let excuseIndex = 0;
 
 /* 🎵 Web Audio Setup */
 let audioCtx;
-let maowBuffer, cheerBuffer;
+let sadCatBuffer, maowBuffer;
 
 async function loadSound(url) {
     const res = await fetch(url);
@@ -173,8 +173,9 @@ async function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     await audioCtx.resume(); // 🔥 also needed right after creation
 
-    maowBuffer = await loadSound("maow.mp3");
-    cheerBuffer = await loadSound("dragon-studio-crowd-cheer-406646.mp3");
+    sadCatBuffer = await loadSound("sad_cat.mp3");  // sad sound for NO
+    maowBuffer = await loadSound("maow.mp3");       // happy meow for YES
+
 
 
 
@@ -225,7 +226,7 @@ const sadCats = [
 function moveButton() {
     if (celebrationStarted) return;
 
-    playSound(maowBuffer, 0.45);
+    playSound(sadCatBuffer, 0.4);
 
     noBtn.style.position = "fixed";
     const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
@@ -252,7 +253,7 @@ noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveButton(); 
 yesBtn.addEventListener("click", () => {
     celebrationStarted = true;
 
-    playSound(cheerBuffer);
+    playSound(maowBuffer, 0.6);
 
     catImg.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400";
     guiltText.innerText = "YOU CHOSE LOVE 😭💖";
