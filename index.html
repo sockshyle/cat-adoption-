@@ -19,29 +19,6 @@ body {
     text-align: center;
     overflow: hidden;
 }
-<div id="startScreen" style="
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #fff0f6, #e6f7ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 500;
-    flex-direction: column;
-">
-    <h2>🎵 Tap to meet the dramatic cat</h2>
-    <button id="startBtn" style="
-        margin-top: 20px;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 12px;
-        border: none;
-        background: #ff4d6d;
-        color: white;
-        cursor: pointer;
-    ">Start</button>
-</div>
-
     
 .container { 
     max-width: 600px; 
@@ -122,6 +99,29 @@ button {
 </head>
 
 <body>
+    <div id="startScreen" style="
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #fff0f6, #e6f7ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    flex-direction: column;
+">
+    <h2>🎵 Tap to meet the dramatic cat</h2>
+    <button id="startBtn" style="
+        margin-top: 20px;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 12px;
+        border: none;
+        background: #ff4d6d;
+        color: white;
+        cursor: pointer;
+    ">Start</button>
+</div>
+
 
 <div class="container">
     <h1>Will you adopt this dramatic cat? 🐱</h1>
@@ -141,14 +141,6 @@ button {
 
     <button id="restartBtn" style="display:none;">Adopt another one 🔁</button>
 </div>
-
-<audio id="booSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-crowd-booing-437.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="cheerSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-small-crowd-cheer-and-applause-518.mp3" type="audio/mpeg">
-</audio>
 
 <script>
 const noBtn = document.getElementById("noBtn");
@@ -203,9 +195,7 @@ function playSound(buffer, volume = 0.4) { // 0.4 = 40% volume
 }
 
 
-/* Unlock audio on first interaction */
-window.addEventListener("click", initAudio, { once: true });
-window.addEventListener("touchstart", initAudio, { once: true });
+
 
 const guiltMessages = [
     "He already packed his tiny suitcase 🧳",
@@ -283,6 +273,14 @@ function spawnConfetti() {
 }
 
 restartBtn.addEventListener("click", () => location.reload());
+    const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", async () => {
+    await initAudio(); // unlock audio
+    startScreen.style.display = "none";
+});
+
 </script>
 
 </body>
