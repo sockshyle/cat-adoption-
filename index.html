@@ -156,7 +156,7 @@ let excuseIndex = 0;
 
 /* 🎵 Web Audio Setup */
 let audioCtx;
-let meowBuffer, cheerBuffer;
+let maowBuffer, cheerBuffer;
 
 async function loadSound(url) {
     const res = await fetch(url);
@@ -173,7 +173,7 @@ async function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     await audioCtx.resume(); // 🔥 also needed right after creation
 
-    meowBuffer = await loadSound("meow.mp3");
+    maowBuffer = await loadSound("maow.mp3");
     cheerBuffer = await loadSound("dragon-studio-crowd-cheer-406646.mp3");
 
 
