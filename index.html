@@ -19,12 +19,7 @@ body {
     text-align: center;
     overflow: hidden;
 }
-    
-.container { 
-    max-width: 600px; 
-    padding: 20px;
-}
-
+.container { max-width: 600px; padding: 20px; }
 h1 { font-size: 1.8rem; color: #333; margin-bottom: 5px; }
 
 .cat-img {
@@ -99,40 +94,16 @@ button {
 </head>
 
 <body>
-    <div id="startScreen" style="
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #fff0f6, #e6f7ff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 500;
-    flex-direction: column;
-">
-    <h2>🎵 Tap to meet the dramatic cat</h2>
-    <button id="startBtn" style="
-        margin-top: 20px;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 12px;
-        border: none;
-        background: #ff4d6d;
-        color: white;
-        cursor: pointer;
-    ">Start</button>
-</div>
 
+<div id="startScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#fff0f6,#e6f7ff);display:flex;justify-content:center;align-items:center;z-index:500;flex-direction:column;">
+    <h2>🎵 Tap to meet the dramatic cat</h2>
+    <button id="startBtn" style="margin-top:20px;padding:15px 30px;font-size:18px;border-radius:12px;border:none;background:#ff4d6d;color:white;cursor:pointer;">Start</button>
+</div>
 
 <div class="container">
     <h1>Will you adopt this dramatic cat? 🐱</h1>
-
-    <img id="catImg" class="cat-img"
-     src="https://images.unsplash.com/photo-1765180850180-f7cfb26fb7f1?w=900"
-     alt="Cat">
-
-    <div id="guiltText" class="guilt-text">
-        He just met you and already feels safe 🥺
-    </div>
+    <img id="catImg" class="cat-img" src="https://images.unsplash.com/photo-1765180850180-f7cfb26fb7f1?w=900" alt="Cat">
+    <div id="guiltText" class="guilt-text">He just met you and already feels safe 🥺</div>
 
     <div class="buttons">
         <button id="yesBtn">Yes, of course! 😻</button>
@@ -154,11 +125,12 @@ let yesScale = 1;
 let celebrationStarted = false;
 let excuseIndex = 0;
 
-/* 🎵 Web Audio Setup */
+/* AUDIO */
 let audioCtx;
 let sadCatBuffer, maowBuffer;
-let isMeowPlaying = false;   // ⬅️ ADD THIS LINE   
-    
+let isMeowPlaying = false;
+let isSadPlaying = false;
+
 async function loadSound(url) {
     const res = await fetch(url);
     const arrayBuffer = await res.arrayBuffer();
@@ -166,50 +138,43 @@ async function loadSound(url) {
 }
 
 async function initAudio() {
-    if (audioCtx) {
-        await audioCtx.resume(); // 🔥 THIS LINE FIXES SAFARI
-        return;
-    }
+    if (audioCtx) { await audioCtx.resume(); return; }
 
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    await audioCtx.resume(); // 🔥 also needed right after creation
+    await audioCtx.resume();
 
-    sadCatBuffer = await loadSound("sad_cat.mp3");  // sad sound for NO
-    maowBuffer = await loadSound("maow.mp3");       // happy meow for YES
-
-
-
-
-    console.log("Audio ready!");
+    sadCatBuffer = await loadSound("sad_cat.mp3");
+    maowBuffer = await loadSound("maow.mp3");
 }
 
-
-function playSound(buffer, volume = 0.4, allowOverlap = true) {
+function playSound(buffer, volume = 0.4, type = "generic") {
     if (!audioCtx || !buffer) return;
 
-    // Prevent overlapping meow spam
-    if (!allowOverlap && isMeowPlaying) return;
+    if (type === "meow" && isMeowPlaying) return;
+    if (type === "sad" && isSadPlaying) return;
 
     const source = audioCtx.createBufferSource();
     const gainNode = audioCtx.createGain();
 
     gainNode.gain.value = volume;
-
     source.buffer = buffer;
     source.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
-    if (!allowOverlap) {
+    if (type === "meow") {
         isMeowPlaying = true;
-        source.onended = () => {
-            isMeowPlaying = false;
-        };
+        source.onended = () => isMeowPlaying = false;
+    }
+
+    if (type === "sad") {
+        isSadPlaying = true;
+        source.onended = () => isSadPlaying = false;
     }
 
     source.start(0);
 }
 
-
+/* TEXT + IMAGES */
 const guiltMessages = [
     "He already packed his tiny suitcase 🧳",
     "He told his mom about you 🥺",
@@ -221,8 +186,8 @@ const guiltMessages = [
 ];
 
 const excuses = [
-    "I am allergic 🤧", "I don't like cats 🙄", "I am selfish 😔",
-    "I am inhuman 😶", "Mom won’t let me 😭", "I prefer dogs 🐶"
+    "I am allergic 🤧","I don't like cats 🙄","I am selfish 😔",
+    "I am inhuman 😶","Mom won’t let me 😭","I prefer dogs 🐶"
 ];
 
 const sadCats = [
@@ -236,20 +201,15 @@ const sadCats = [
 function moveButton() {
     if (celebrationStarted) return;
 
-    playSound(sadCatBuffer, 0.4);
+    playSound(sadCatBuffer, 0.4, "sad");
 
     noBtn.style.position = "fixed";
-    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-    noBtn.style.left = `${x}px`;
-    noBtn.style.top = `${y}px`;
+    noBtn.style.left = Math.random() * (window.innerWidth - noBtn.offsetWidth) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - noBtn.offsetHeight) + "px";
 
-    noBtn.innerText = excuses[excuseIndex % excuses.length];
+    noBtn.innerText = excuses[excuseIndex++ % excuses.length];
     guiltText.innerText = guiltMessages[guiltIndex % guiltMessages.length];
-    catImg.src = sadCats[guiltIndex % sadCats.length];
-
-    excuseIndex++;
-    guiltIndex++;
+    catImg.src = sadCats[guiltIndex++ % sadCats.length];
 
     if (yesScale < 2.2) {
         yesScale += 0.15;
@@ -258,12 +218,11 @@ function moveButton() {
 }
 
 noBtn.addEventListener("mouseenter", moveButton);
-noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveButton(); });
+noBtn.addEventListener("touchstart", e => { e.preventDefault(); moveButton(); });
 
 yesBtn.addEventListener("click", () => {
     celebrationStarted = true;
-
-    playSound(maowBuffer, 0.6, false); // false = no overlapping
+    playSound(maowBuffer, 0.6, "meow");
 
     catImg.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400";
     guiltText.innerText = "YOU CHOSE LOVE 😭💖";
@@ -279,21 +238,17 @@ function spawnConfetti() {
     confetti.className = "celebration";
     confetti.innerText = ["🐱","💖","✨","🎉"][Math.floor(Math.random()*4)];
     confetti.style.left = Math.random() * 100 + "vw";
-    confetti.style.top = "-50px";
     confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
     document.body.appendChild(confetti);
     setTimeout(() => confetti.remove(), 4000);
 }
 
 restartBtn.addEventListener("click", () => location.reload());
-    const startScreen = document.getElementById("startScreen");
-const startBtn = document.getElementById("startBtn");
 
-startBtn.addEventListener("click", async () => {
-    await initAudio(); // unlock audio
-    startScreen.style.display = "none";
+document.getElementById("startBtn").addEventListener("click", async () => {
+    await initAudio();
+    document.getElementById("startScreen").style.display = "none";
 });
-
 </script>
 
 </body>
