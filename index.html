@@ -158,8 +158,9 @@ async function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     await audioCtx.resume(); // 🔥 also needed right after creation
 
-    booBuffer = await loadSound("https://assets.mixkit.co/sfx/preview/mixkit-crowd-booing-437.mp3");
-    cheerBuffer = await loadSound("https://assets.mixkit.co/sfx/preview/mixkit-small-crowd-cheer-and-applause-518.mp3");
+    booBuffer = await loadSound("olivia_parker-crowd-boo-disapproval-demo-309882.mp3");
+    cheerBuffer = await loadSound("dragon-studio-crowd-cheer-406646.mp3");
+
 
     console.log("Audio ready!");
 }
