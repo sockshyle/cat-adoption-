@@ -156,7 +156,7 @@ let excuseIndex = 0;
 
 /* 🎵 Web Audio Setup */
 let audioCtx;
-let sadCatBuffer, cheerBuffer;
+let meowBuffer, cheerBuffer;
 
 async function loadSound(url) {
     const res = await fetch(url);
@@ -173,7 +173,7 @@ async function initAudio() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     await audioCtx.resume(); // 🔥 also needed right after creation
 
-    sadCatBuffer = await loadSound("sad_cat.mp3");
+    meowBuffer = await loadSound("meow.mp3");
     cheerBuffer = await loadSound("dragon-studio-crowd-cheer-406646.mp3");
 
 
@@ -225,7 +225,7 @@ const sadCats = [
 function moveButton() {
     if (celebrationStarted) return;
 
-    playSound(sadCatBuffer, 0.45);
+    playSound(meowBuffer, 0.45);
 
     noBtn.style.position = "fixed";
     const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
