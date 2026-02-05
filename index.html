@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Adopt the Cat - Audio Fix</title>
+<title>Adopt The Cat — Swarnabh’s Procrastination Lab</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
 
@@ -157,7 +157,8 @@ let excuseIndex = 0;
 /* 🎵 Web Audio Setup */
 let audioCtx;
 let sadCatBuffer, maowBuffer;
-
+let isMeowPlaying = false;   // ⬅️ ADD THIS LINE   
+    
 async function loadSound(url) {
     const res = await fetch(url);
     const arrayBuffer = await res.arrayBuffer();
@@ -183,8 +184,11 @@ async function initAudio() {
 }
 
 
-function playSound(buffer, volume = 0.4) {
-    if (!audioCtx || !buffer) return; // prevents early errors
+function playSound(buffer, volume = 0.4, allowOverlap = true) {
+    if (!audioCtx || !buffer) return;
+
+    // Prevent overlapping meow spam
+    if (!allowOverlap && isMeowPlaying) return;
 
     const source = audioCtx.createBufferSource();
     const gainNode = audioCtx.createGain();
@@ -194,10 +198,16 @@ function playSound(buffer, volume = 0.4) {
     source.buffer = buffer;
     source.connect(gainNode);
     gainNode.connect(audioCtx.destination);
+
+    if (!allowOverlap) {
+        isMeowPlaying = true;
+        source.onended = () => {
+            isMeowPlaying = false;
+        };
+    }
+
     source.start(0);
 }
-
-
 
 
 const guiltMessages = [
@@ -253,7 +263,7 @@ noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveButton(); 
 yesBtn.addEventListener("click", () => {
     celebrationStarted = true;
 
-    playSound(maowBuffer, 0.6);
+    playSound(maowBuffer, 0.6, false); // false = no overlapping
 
     catImg.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400";
     guiltText.innerText = "YOU CHOSE LOVE 😭💖";
