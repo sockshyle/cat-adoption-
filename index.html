@@ -19,7 +19,30 @@ body {
     text-align: center;
     overflow: hidden;
 }
+<div id="startScreen" style="
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #fff0f6, #e6f7ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    flex-direction: column;
+">
+    <h2>🎵 Tap to meet the dramatic cat</h2>
+    <button id="startBtn" style="
+        margin-top: 20px;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 12px;
+        border: none;
+        background: #ff4d6d;
+        color: white;
+        cursor: pointer;
+    ">Start</button>
+</div>
 
+    
 .container { 
     max-width: 600px; 
     padding: 20px;
@@ -166,13 +189,19 @@ async function initAudio() {
 }
 
 
-function playSound(buffer) {
+function playSound(buffer, volume = 0.4) { // 0.4 = 40% volume
     if (!audioCtx || !buffer) return;
     const source = audioCtx.createBufferSource();
+    const gainNode = audioCtx.createGain();
+
+    gainNode.gain.value = volume;
+
     source.buffer = buffer;
-    source.connect(audioCtx.destination);
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
     source.start(0);
 }
+
 
 /* Unlock audio on first interaction */
 window.addEventListener("click", initAudio, { once: true });
